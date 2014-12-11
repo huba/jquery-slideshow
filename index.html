@@ -8,26 +8,20 @@
 
         $(document).ready(function() {
             slideshow = $('#slideshow').slideshow({
-                auto_play: false,
-                callbacks: {
-                    'first': {
-                        'a': 1,
-                        on_show: function(slideshow, page) {
-                            console.log('showing');
-                        },
-                        on_lb: function(slideshow, page) {
-                            console.log('overwritten');
-                            return 4;
-                        },
-                    },
-                    'second': {
-                        'b': 2,
-                        on_show: function(slideshow, page) {
-                            console.log('blah');
-                        }
-                    }
-                }
+                auto_play: true,
+                auto_play_direction: 'alternate'
             });
+
+            $('#first').on('show', function() {
+                console.log('first page says hi');
+            });
+
+            $('#first').on('hide', function() {
+                console.log('first page bids farwell');
+            });
+
+            $('#slideshow > .page > .button_area > #lb').click(slideshow.prev_page);
+            $('#slideshow > .page > .button_area > #rb').click(slideshow.next_page);
 
             slideshow.set_page('#first');
         });

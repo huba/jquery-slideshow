@@ -1,4 +1,5 @@
 (function($) {
+    // Add events for show and hide.
     $.each(['show', 'hide'], function (i, ev) {
         var el = $.fn[ev];
         $.fn[ev] = function () {
@@ -21,28 +22,13 @@
 
         // DEFAULT SETTINGS ===============================
         var defaults = {
-            callbacks: {}, // 'id': {on_show: f(slideshow, page), on_lb: f(slideshow, page), on_rb: f(slideshow, page), on_hide: f(slideshow, page)}
             auto_play: false,
             auto_play_delay: 3000,
             auto_play_direction: 'forwards', // backwards or alternate, alternate reverses direction when it gets to the end
         };
-
-        var default_callbacks = {
-            on_show: function(slideshow, page) {return 5},
-            on_lb: function(slideshow, page) {slideshow.prev_page()},
-            on_rb: function(slideshow, page) {slideshow.next_page()},
-            on_hide: function(slideshow, page) {}
-        };
         // ================================================
 
         var settings = $.extend(defaults, options);
-
-        // EVENTS =========================================
-        var show_evt = $.Event('show_page');
-        var hide_evt = $.Event('hide_page');
-        var lb_evt = $.Event('left_button');
-        var rb_evt = $.Event('right_button');
-        // ================================================
 
         // PRIVATE FUNCTIONS ==============================
         var init = function() {
@@ -59,47 +45,9 @@
                 'left': '0px',
             });
 
-            pages = {};
-
-            $pages.find('.button_area > #lb').click(function() {
-                $(this).parent().parent().trigger(lb_evt);
-            });
-
-            $pages.find('.button_area > #rb').click(function() {
-                $(this).parent().parent().trigger(rb_evt);
-            });
-
             apply_auto_play();
-            assign_callbacks();
 
             return slideshow;
-        }
-
-        var assign_callbacks = function() {
-            $pages.each(function() {
-                var page_callbacks = $.extend(default_callbacks, settings.callbacks[this.id])
-                console.log(this.id);
-                console.log(settings);
-                console.log($.extend(default_callbacks, settings.callbacks[this.id]));
-
-                $(this).on('show', function() {
-                    page_callbacks.on_show(slideshow, this);
-                });
-
-                $(this).on('hide', function() {
-                    page_callbacks.on_hide(slideshow, this);
-                });
-
-                $(this).on(lb_evt, function() {
-                    page_callbacks.on_lb(slideshow, this);
-                });
-
-                $(this).on(rb_evt, function() {
-                    page_callbacks.on_rb(slideshow, this);
-                });
-
-                console.log($(this));
-            });
         }
 
         var apply_auto_play = function() {
@@ -120,9 +68,7 @@
             if ($current_page) {
                 // Fade out old page and call its on_hide callback
                 // before setting and showing new page.
-                $current_page.fadeOut(function() {
-                    show_page();
-                });
+                $current_page.fadeOut(show_page);
             } else {
                 // At the start $current_page is null so there is nothing to fade out.
                 show_page();
@@ -131,9 +77,7 @@
 
         var show_page = function() {
             $current_page = $pages.eq(page_index);
-            $current_page.fadeIn(function() {
-                auto_play();
-            });
+            $current_page.fadeIn(auto_play);
         }
 
         var auto_play = function() {
