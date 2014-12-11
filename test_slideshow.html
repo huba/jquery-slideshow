@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.0/jquery.min.js"></script>
+    <script type="text/javascript" src="jquery.slideshow.js"></script>
+    <script type="text/javascript">
+        var slideshow;
+
+        $(document).ready(function() {
+            slideshow = $('#slideshow').slideshow({
+                auto_play: true
+            });
+
+            slideshow.set_page('#first');
+        });
+    </script>
+
+    <style>
+        body {
+            background: LightCyan;
+            font-family: Arial;
+        }
+
+        p {
+            margin: 3px;
+        }
+
+        #slideshow {
+            width: 250px;
+            margin-left: auto;
+            margin-right: auto;
+            margin-top: 20px;
+
+            border-radius: 5px;
+            border: 1px solid black;
+            background: white;
+        }
+
+        .button_area {
+            width: 80%;
+            height: 22px;
+            margin-left: auto;
+            margin-right: auto;
+            margin-bottom: 5px;
+            margin-top: 5px;
+        }
+
+        .button_area button {
+            width: 50%;
+            display: block;
+        }
+
+        .button_area button#lb {
+            float: left;
+        }
+
+        .button_area button#rb {
+            float: right;
+        }
+
+        .page:after {
+            display: block;
+            height: 32px;
+        }
+    </style>
+</head>
+<body>
+    <div id="slideshow">
+        <div class="page" id="first">
+            <p>
+                first page
+                <br/>
+                <br/>
+                <br/>
+                <br/>
+                <br/>
+                <br/>
+                <br/>
+                <br/>
+                <br/>
+                blah
+            </p>
+            <div class="button_area">
+                <button id="lb">Previous</button><button id="rb">Next</button>
+            </div>
+        </div>
+        <div class="page" id="second">
+            <p>
+                second page
+            </p>
+            <div class="button_area">
+                <button id="lb">Previous</button><button id="rb">Next</button>
+            </div>
+        </div>
+        <div class="page" id="third">
+            <p>
+                last, but not least
+            </p>
+            <div class="button_area">
+                <button id="lb">Previous</button><button id="rb">Next</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
