@@ -8,7 +8,25 @@
 
         $(document).ready(function() {
             slideshow = $('#slideshow').slideshow({
-                auto_play: true
+                auto_play: false,
+                callbacks: {
+                    'first': {
+                        'a': 1,
+                        on_show: function(slideshow, page) {
+                            console.log('showing');
+                        },
+                        on_lb: function(slideshow, page) {
+                            console.log('overwritten');
+                            return 4;
+                        },
+                    },
+                    'second': {
+                        'b': 2,
+                        on_show: function(slideshow, page) {
+                            console.log('blah');
+                        }
+                    }
+                }
             });
 
             slideshow.set_page('#first');
