@@ -141,6 +141,23 @@
             settings.auto_play = true;
             auto_play();
         }
+        
+        this.add_page = function(page_markup) {
+            // This function is for dynamically adding pages with ajax for example.
+            // You can only append pages to the end so you don't mess with the indexes.
+            var $new_page = $(page_markup);
+            $new_page.addClass('page');
+            $new_page.css({
+                'display': 'none',
+                'width': '100%',
+                'top': '0px',
+                'left': '0px',
+            });
+            
+            $container.append($new_page);
+            $pages = $container.find('.page');
+        }
+        
         // ================================================
 
         return init();
