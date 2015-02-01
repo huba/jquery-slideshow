@@ -1,0 +1,26 @@
+{
+  "name": "jquery-slideshow",
+  "version": "0.1.0",
+  "homepage": "https://github.com/huba/jquery-slideshow",
+  "authors": [
+    "Huba Nagy <12huba@gmail.com>"
+  ],
+  "description": "A plugin to create a slideshow with div elements.",
+  "main": "jquery.slideshow.js",
+  "keywords": [
+    "jquery",
+    "plugin",
+    "slideshow"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "jquery": ">=1.8.0"
+  }
+}
