@@ -1,6 +1,6 @@
 jQuery.slideshow
 ================
-A plugin to create a slideshow using a container <div> and page <divs>. It can skip
+A plugin to create a slideshow using div elements. It can skip
 automatically after a set time, with 3 autoplay directions: reverse, forward and
 alternate which are similar to the css animation directions. You can attach callbacks
 for each page appearing and disappearing.
