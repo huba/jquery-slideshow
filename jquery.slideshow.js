@@ -23,6 +23,7 @@
         // DEFAULT SETTINGS ===============================
         var defaults = {
             transition_type: 'x-fade', // 'x-fade' for fading, 'carousel' for sliding.
+            transition_duration: 400, //duration in ms, same as jquery animation durations
             auto_play: false,
             auto_play_delay: 3000,
             auto_play_direction: 'forwards', // backwards or alternate, alternate reverses direction when it gets to the end
@@ -50,12 +51,12 @@
                 };
                 
                 var transition_out = function() {
-                    $current_page.fadeOut(transition_in);
+                    $current_page.fadeOut(settings.transition_duration, transition_in);
                 }
                 
                 var transition_in = function() {
                     $current_page = $pages.eq(page_index);
-                    $current_page.fadeIn(function () {
+                    $current_page.fadeIn(settings.transition_duration, function () {
                         blocking = false;
                         auto_play();
                     });
@@ -85,10 +86,14 @@
                 }
                 
                 var slide = function(left_offset, $new_page) {
-                    $new_page.animate({'left': '0px'}, {queue: false});
+                    $new_page.animate({'left': '0px'}, {
+                        queue: false, 
+                        duration: settings.transition_duration
+                    });
                     
                     $current_page.animate({'left': -left_offset}, {
                         queue: false,
+                        duration: settings.transition_duration,
                         complete: function() {
                             $current_page.css({'display': 'none', 'left': '0px'});
                             $current_page = $pages.eq(page_index);
