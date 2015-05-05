@@ -18,7 +18,7 @@
 
         var slideshow = this; page_index = 0;
         var $container, $pages, $current_page;
-        var skip_timeout, pages;
+        var skip_timeout, pages, page_css;
 
         // DEFAULT SETTINGS ===============================
         var defaults = {
@@ -111,12 +111,12 @@
                         'position': 'relative'
                     });
                     
-                    $pages.css({
+                    page_css = {
                         'display': 'none',
                         'width': '100%',
                         'top': '0px',
                         'left': '0px',
-                    });
+                    }
                     break;
                 case 'carousel':
                     if ($container.css('height').length <= 0) {
@@ -128,16 +128,18 @@
                         'overflow': 'hidden'
                     });
                     
-                    $pages.css({
+                    page_css = {
                         'display': 'none',
                         'width': '100%',
                         'height': '100%',
                         'position': 'absolute',
                         'top': '0px',
                         'left': '0px',
-                    })
+                    };
                     break;
             }
+            
+            $pages.css(page_css);
 
             apply_auto_play();
 
@@ -160,8 +162,13 @@
             // return if there is a transition in progress already
             if (blocking) return;
             
+            var new_page_index = index % $pages.length;
+            // prevent animating to current page
+            if (page_index == new_page_index && $current_page != null) return;
+            
+            // We're all clear
+            page_index = new_page_index;
             slideshow.clear_skip_timeout();
-            page_index = index % $pages.length;
             // hand over to the transition callback sequence...
             launch_transition(direction);
         }
@@ -236,12 +243,7 @@
             // You can only append pages to the end so you don't mess with the indexes.
             var $new_page = $(page_markup);
             $new_page.addClass('page');
-            $new_page.css({
-                'display': 'none',
-                'width': '100%',
-                'top': '0px',
-                'left': '0px',
-            });
+            $new_page.css(page_css);
             
             $container.append($new_page);
             $pages = $container.find('.page');
