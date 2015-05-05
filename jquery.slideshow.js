@@ -33,10 +33,12 @@
         
         // SET UP TRANSITIONS =============================
         var launch_transition;
+        var blocking = false;
         
         switch(settings.transition_type) {
             case 'x-fade':
                 launch_transition = function(direction) {
+                    blocking = true;
                     if ($current_page) {
                         // Fade out old page and call its on_hide callback
                         // before setting and showing new page.
@@ -53,13 +55,17 @@
                 
                 var transition_in = function() {
                     $current_page = $pages.eq(page_index);
-                    $current_page.fadeIn(auto_play);
+                    $current_page.fadeIn(function () {
+                        blocking = false;
+                        auto_play();
+                    });
                 }
                 break;
             
             case 'carousel':
                 launch_transition = function(direction) {
                     if ($current_page) {
+                        blocking = true;
                         var left_offset = $container.width();
                         if (direction == 'from-left') left_offset *= -1;
                         
@@ -86,6 +92,7 @@
                         complete: function() {
                             $current_page.css({'display': 'none', 'left': '0px'});
                             $current_page = $pages.eq(page_index);
+                            blocking = false;
                             auto_play();
                         }
                     });
@@ -150,6 +157,9 @@
         }
 
         var set_page_by_index = function(index, direction) {
+            // return if there is a transition in progress already
+            if (blocking) return;
+            
             slideshow.clear_skip_timeout();
             page_index = index % $pages.length;
             // hand over to the transition callback sequence...
