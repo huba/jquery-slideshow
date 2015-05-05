@@ -9,7 +9,8 @@
         $(document).ready(function() {
             slideshow = $('#slideshow').slideshow({
                 auto_play: false,
-                auto_play_direction: 'alternate'
+                auto_play_direction: 'alternate',
+                transition_type: 'carousel'
             });
 
             $('#first').on('show', function() {
@@ -42,6 +43,7 @@
             margin-left: auto;
             margin-right: auto;
             margin-top: 20px;
+            height: 400px;
 
             border-radius: 5px;
             border: 1px solid black;

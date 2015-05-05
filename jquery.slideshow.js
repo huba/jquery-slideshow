@@ -22,6 +22,7 @@
 
         // DEFAULT SETTINGS ===============================
         var defaults = {
+            transition_type: 'x-fade', // 'x-fade' for fading, 'carousel' for sliding.
             auto_play: false,
             auto_play_delay: 3000,
             auto_play_direction: 'forwards', // backwards or alternate, alternate reverses direction when it gets to the end
@@ -29,21 +30,107 @@
         // ================================================
 
         var settings = $.extend(defaults, options);
+        
+        // SET UP TRANSITIONS =============================
+        var launch_transition;
+        
+        switch(settings.transition_type) {
+            case 'x-fade':
+                launch_transition = function(direction) {
+                    if ($current_page) {
+                        // Fade out old page and call its on_hide callback
+                        // before setting and showing new page.
+                        transition_out();
+                    } else {
+                        // At the start $current_page is null so there is nothing to fade out.
+                        transition_in();
+                    }
+                };
+                
+                var transition_out = function() {
+                    $current_page.fadeOut(transition_in);
+                }
+                
+                var transition_in = function() {
+                    $current_page = $pages.eq(page_index);
+                    $current_page.fadeIn(auto_play);
+                }
+                break;
+            
+            case 'carousel':
+                launch_transition = function(direction) {
+                    if ($current_page) {
+                        var left_offset = $container.width();
+                        if (direction == 'from-left') left_offset *= -1;
+                        
+                        var $new_page = $pages.eq(page_index);
+                        
+                        $new_page.css({
+                            'display': 'block',
+                            'left': left_offset
+                        });
+                        
+                        slide(left_offset, $new_page);
+                    } else {
+                        $current_page = $pages.eq(page_index);
+                        $current_page.css({'display': 'block'});
+                        auto_play();
+                    }
+                }
+                
+                var slide = function(left_offset, $new_page) {
+                    $new_page.animate({'left': '0px'}, {queue: false});
+                    
+                    $current_page.animate({'left': -left_offset}, {
+                        queue: false,
+                        complete: function() {
+                            $current_page.css({'display': 'none', 'left': '0px'});
+                            $current_page = $pages.eq(page_index);
+                            auto_play();
+                        }
+                    });
+                }
+                break;
+        }
 
         // PRIVATE FUNCTIONS ==============================
         var init = function() {
             $container = $(slideshow);
-            $container.css({
-                'position': 'relative'
-            });
-
             $pages = $container.find('.page');
-            $pages.css({
-                'display': 'none',
-                'width': '100%',
-                'top': '0px',
-                'left': '0px',
-            });
+            
+            switch(settings.transition_type) {
+                case 'x-fade':
+                    $container.css({
+                        'position': 'relative'
+                    });
+                    
+                    $pages.css({
+                        'display': 'none',
+                        'width': '100%',
+                        'top': '0px',
+                        'left': '0px',
+                    });
+                    break;
+                case 'carousel':
+                    if ($container.css('height').length <= 0) {
+                        throw new Error('You must specify the height of your .container to be able to use the carousel setting!')
+                    }
+                    
+                    $container.css({
+                        'position': 'relative',
+                        'overflow': 'hidden'
+                    });
+                    
+                    $pages.css({
+                        'display': 'none',
+                        'width': '100%',
+                        'height': '100%',
+                        'position': 'absolute',
+                        'top': '0px',
+                        'left': '0px',
+                    })
+                    break;
+            }
 
             apply_auto_play();
 
@@ -58,26 +145,15 @@
             }
         }
 
-        var set_page_by_id = function(page_id) {
-            set_page_by_index($pages.filter(page_id).index())
+        var set_page_by_id = function(page_id, direction) {
+            set_page_by_index($pages.filter(page_id).index(), direction)
         }
 
-        var set_page_by_index = function(index) {
+        var set_page_by_index = function(index, direction) {
             slideshow.clear_skip_timeout();
             page_index = index % $pages.length;
-            if ($current_page) {
-                // Fade out old page and call its on_hide callback
-                // before setting and showing new page.
-                $current_page.fadeOut(show_page);
-            } else {
-                // At the start $current_page is null so there is nothing to fade out.
-                show_page();
-            }
-        }
-
-        var show_page = function() {
-            $current_page = $pages.eq(page_index);
-            $current_page.fadeIn(auto_play);
+            // hand over to the transition callback sequence...
+            launch_transition(direction);
         }
 
         var auto_play = function() {
@@ -99,25 +175,28 @@
 
         // PUBLIC FUNCTIONS ===============================
         this.next_page = function() {
-            set_page_by_index(page_index + 1);
+            set_page_by_index(page_index + 1, 'from-right');
         }
 
         this.prev_page = function() {
-            set_page_by_index(page_index - 1);
+            set_page_by_index(page_index - 1, 'from-left');
         }
 
-        this.set_page = function(target_page) {
+        this.set_page = function(target_page, direction) {
             // Calls the appropriate set_page function based on whether
             // the page is identified with '#id' or its index
+            if (direction == undefined) direction = 'from-right';
             if (typeof target_page == 'string') {
-                set_page_by_id(target_page);
+                set_page_by_id(target_page, direction);
             } else if (typeof target_page == 'number') {
-                set_page_by_index(target_page);
+                set_page_by_index(target_page, direction);
             }
         }
 
         this.set_skip_timeout = function(delay, play_reverse) {
             // Sets the skip_timeout in the given direction
+            // Clears the timeout if there is already one in place.
+            if (skip_timeout) slideshow.clear_skip_timeout;
             if (!play_reverse){
                 skip_timeout = setTimeout(slideshow.next_page, delay);
             } else {
