@@ -183,7 +183,8 @@
             // return if there is a transition in progress already
             if (blocking) return;
             
-            var new_page_index = Math.abs(index % $pages.length);
+            var new_page_index = index % $pages.length;
+            if (new_page_index < 0) new_page_index += $pages.length;
             
             // prevent animating to current page
             if (page_index == new_page_index && $current_page != null) return;
