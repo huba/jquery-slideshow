@@ -133,10 +133,6 @@
                     }
                     break;
                 case 'carousel':
-                    if ($container.css('height').length <= 0) {
-                        throw new Error('You must specify the height of your .container to be able to use the carousel setting!')
-                    }
-                    
                     $container.css({
                         'position': 'relative',
                         'overflow': 'hidden',
