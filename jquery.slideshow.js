@@ -183,10 +183,29 @@
             // return if there is a transition in progress already
             if (blocking) return;
             
-            var new_page_index = index % $pages.length;
-            if (new_page_index < 0) new_page_index += $pages.length;
+            var new_page_index = Math.abs(index % $pages.length);
+            
             // prevent animating to current page
             if (page_index == new_page_index && $current_page != null) return;
+            
+            // Intelligently decide the direction based on the change in the index
+            if (direction == 'default') {
+                // Decides based on whether it's shorter to go towards the right and
+                // loop around to the target or whether to go backwards
+                if (new_page_index < page_index) {
+                    right_distance = $pages.length - page_index + new_page_index;
+                    left_distance = page_index - new_page_index;
+                } else {
+                    right_distance = new_page_index - page_index;
+                    left_distance = $pages.length - new_page_index + page_index;
+                }
+                
+                if (right_distance < left_distance) {
+                    direction = 'from-right';
+                } else {
+                    direction = 'from-left'
+                }
+            }
             
             // call the hide callback for the page
             slideshow.clear_skip_timeout();
@@ -231,7 +250,7 @@
         this.set_page = function(target_page, direction) {
             // Calls the appropriate set_page function based on whether
             // the page is identified with '#id' or its index
-            if (direction == undefined) direction = 'from-right';
+            if (direction == undefined) direction = 'default';
             if (typeof target_page == 'string') {
                 set_page_by_id(target_page, direction);
             } else if (typeof target_page == 'number') {

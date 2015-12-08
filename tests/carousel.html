@@ -25,8 +25,8 @@
                 }
             });
             
-            $('#slideshow > .page > .button_area > #lb').click(slideshow.prev_page);
-            $('#slideshow > .page > .button_area > #rb').click(slideshow.next_page);
+            $('#slideshow >  .button_area > #lb').click(slideshow.prev_page);
+            $('#slideshow >  .button_area > #rb').click(slideshow.next_page);
 
             slideshow.set_page('#first');
         });
@@ -55,14 +55,23 @@
             
             display: flex;
         }
+        
+        .page {
+            min-height: 100px;
+        }
 
         .button_area {
+            position: absolute;
             width: 80%;
             height: 22px;
-            margin-left: auto;
-            margin-right: auto;
-            margin-bottom: 5px;
-            margin-top: 5px;
+            bottom: 2px;
+            left: 10%;
+            opacity: 0.2;
+            transition: opacity 0.6s ease;
+        }
+        
+        .button_area:hover {
+            opacity: 1;
         }
 
         .button_area button {
@@ -95,25 +104,29 @@
                 <br/>
                 blah
             </p>
-            <div class="button_area">
-                <button id="lb">Previous</button><button id="rb">Next</button>
-            </div>
         </div>
         <div class="page marked" id="second">
             <p>
                 second page
             </p>
-            <div class="button_area">
-                <button id="lb">Previous</button><button id="rb">Next</button>
-            </div>
         </div>
         <div class="page marked" id="third">
             <p>
+                somethin else
+            </p>
+        </div>
+        <div class="page" id="fourth">
+            <p>
+                so much content in this slideshow
+            </p>
+        </div>
+        <div class="page" id="fifth">
+            <p>
                 last, but not least
             </p>
-            <div class="button_area">
-                <button id="lb">Previous</button><button id="rb">Next</button>
-            </div>
+        </div>
+        <div class="button_area">
+            <button id="lb">Previous</button><button id="rb">Next</button>
         </div>
     </div>
 </body>
