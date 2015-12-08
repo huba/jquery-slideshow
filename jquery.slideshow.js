@@ -189,7 +189,7 @@
             if (page_index == new_page_index && $current_page != null) return;
             
             // Intelligently decide the direction based on the change in the index
-            if (direction == 'default') {
+            if (direction == 'intelligent') {
                 // Decides based on whether it's shorter to go towards the right and
                 // loop around to the target or whether to go backwards
                 if (new_page_index < page_index) {
@@ -250,7 +250,7 @@
         this.set_page = function(target_page, direction) {
             // Calls the appropriate set_page function based on whether
             // the page is identified with '#id' or its index
-            if (direction == undefined) direction = 'default';
+            if (direction == undefined) direction = 'from-left';
             if (typeof target_page == 'string') {
                 set_page_by_id(target_page, direction);
             } else if (typeof target_page == 'number') {
