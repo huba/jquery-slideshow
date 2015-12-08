@@ -1,13 +1,4 @@
 (function($) {
-    // Add events for show and hide.
-    $.each(['show', 'hide'], function (i, ev) {
-        var el = $.fn[ev];
-        $.fn[ev] = function () {
-            this.trigger(ev);
-            return el.apply(this, arguments);
-        };
-    });
-
     $.fn.slideshow = function(options) {
         // Handle multiple matches
         if (this.length > 1) {
@@ -27,6 +18,8 @@
             auto_play: false,
             auto_play_delay: 3000,
             auto_play_direction: 'forwards', // backwards or alternate, alternate reverses direction when it gets to the end
+            show_callbacks: {}, // selector or index paired with a function
+            hide_callbacks: {}
         };
         // ================================================
 
@@ -38,33 +31,38 @@
         
         switch(settings.transition_type) {
             case 'x-fade':
-                launch_transition = function(direction) {
+                launch_transition = function(direction, do_after) {
+                    // The do_after function is called after the transition is finished, but before
+                    // the auto_play is set off again.
                     blocking = true;
                     if ($current_page) {
                         // Fade out old page and call its on_hide callback
                         // before setting and showing new page.
-                        transition_out();
+                        transition_out(do_after);
                     } else {
                         // At the start $current_page is null so there is nothing to fade out.
-                        transition_in();
+                        transition_in(do_after);
                     }
                 };
                 
-                var transition_out = function() {
-                    $current_page.fadeOut(settings.transition_duration, transition_in);
+                var transition_out = function(do_after) {
+                    $current_page.fadeOut(settings.transition_duration, function() {
+                      transition_in(do_after);
+                    });
                 }
                 
-                var transition_in = function() {
+                var transition_in = function(do_after) {
                     $current_page = $pages.eq(page_index);
                     $current_page.fadeIn(settings.transition_duration, function () {
                         blocking = false;
+                        do_after();
                         auto_play();
                     });
                 }
                 break;
             
             case 'carousel':
-                launch_transition = function(direction) {
+                launch_transition = function(direction, do_after) {
                     if ($current_page) {
                         blocking = true;
                         var order = '2';
@@ -82,15 +80,16 @@
                             'margin-left': margin_left
                         });
                         
-                        slide(direction, $new_page);
+                        slide(direction, $new_page, do_after);
                     } else {
                         $current_page = $pages.eq(page_index);
                         $current_page.css({'display': 'block', 'order': '1'});
+                        do_after();
                         auto_play();
                     }
                 }
                 
-                var slide = function(direction, $new_page) {
+                var slide = function(direction, $new_page, do_after) {
                     var page = $current_page;
                     var margin_left = '-100%';
                     
@@ -107,6 +106,7 @@
                             $current_page = $pages.eq(page_index);
                             $current_page.css({'order': '1'})
                             blocking = false;
+                            do_after();
                             auto_play();
                         }
                     });
@@ -169,20 +169,37 @@
         var set_page_by_id = function(page_id, direction) {
             set_page_by_index($pages.filter(page_id).index(), direction)
         }
+        
+        var call_callbacks = function(callbacks) {
+            for (var key in callbacks) {
+                if (typeof key == 'string' && $current_page.is(key)) {
+                    // match page by selector
+                    callbacks[key](page_index, $current_page.attr('id'));
+                }
+            }
+        }
 
         var set_page_by_index = function(index, direction) {
             // return if there is a transition in progress already
             if (blocking) return;
             
             var new_page_index = index % $pages.length;
+            if (new_page_index < 0) new_page_index += 3;
             // prevent animating to current page
             if (page_index == new_page_index && $current_page != null) return;
             
+            // call the hide callback for the page
+            slideshow.clear_skip_timeout();
+            if ($current_page != null) call_callbacks(settings.hide_callbacks)
+            
             // We're all clear
             page_index = new_page_index;
-            slideshow.clear_skip_timeout();
             // hand over to the transition callback sequence...
-            launch_transition(direction);
+            launch_transition(direction, function() {
+              // This will set off the show_callbacks for the new page after the transition is done
+              // but before auto_play kicks in again.
+              call_callbacks(settings.show_callbacks)
+            });
         }
 
         var auto_play = function() {
@@ -220,6 +237,10 @@
             } else if (typeof target_page == 'number') {
                 set_page_by_index(target_page, direction);
             }
+        }
+        
+        this.get_page_index = function() {
+            return page_index;
         }
 
         this.set_skip_timeout = function(delay, play_reverse) {
