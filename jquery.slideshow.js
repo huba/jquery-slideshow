@@ -67,36 +67,45 @@
                 launch_transition = function(direction) {
                     if ($current_page) {
                         blocking = true;
-                        var left_offset = $container.width();
-                        if (direction == 'from-left') left_offset *= -1;
+                        var order = '2';
+                        var margin_left = '0%';
+                        if (direction == 'from-left') {
+                            order = '0';
+                            margin_left = '-100%';
+                        }
                         
                         var $new_page = $pages.eq(page_index);
                         
                         $new_page.css({
                             'display': 'block',
-                            'left': left_offset
+                            'order': order,
+                            'margin-left': margin_left
                         });
                         
-                        slide(left_offset, $new_page);
+                        slide(direction, $new_page);
                     } else {
                         $current_page = $pages.eq(page_index);
-                        $current_page.css({'display': 'block'});
+                        $current_page.css({'display': 'block', 'order': '1'});
                         auto_play();
                     }
                 }
                 
-                var slide = function(left_offset, $new_page) {
-                    $new_page.animate({'left': '0px'}, {
-                        queue: false, 
-                        duration: settings.transition_duration
-                    });
+                var slide = function(direction, $new_page) {
+                    var page = $current_page;
+                    var margin_left = '-100%';
                     
-                    $current_page.animate({'left': -left_offset}, {
+                    if (direction == 'from-left') {
+                        page = $new_page;
+                        margin_left = '0%';
+                    } 
+                    
+                    page.animate({'margin-left': margin_left}, {
                         queue: false,
                         duration: settings.transition_duration,
                         complete: function() {
-                            $current_page.css({'display': 'none', 'left': '0px'});
+                            $current_page.css({'display': 'none', 'margin-left': '0'});
                             $current_page = $pages.eq(page_index);
+                            $current_page.css({'order': '1'})
                             blocking = false;
                             auto_play();
                         }
@@ -130,16 +139,18 @@
                     
                     $container.css({
                         'position': 'relative',
-                        'overflow': 'hidden'
+                        'overflow': 'hidden',
+                        'display': 'flex',
+                        'transition': 'height 0.6s ease'
                     });
                     
                     page_css = {
                         'display': 'none',
                         'width': '100%',
-                        'height': '100%',
-                        'position': 'absolute',
-                        'top': '0px',
-                        'left': '0px',
+                        'height': 'auto',
+                        'flex-basis': 'auto',
+                        'flex-grow': '0',
+                        'flex-shrink': '0'
                     };
                     break;
             }

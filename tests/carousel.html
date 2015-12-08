@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <script type="text/javascript" src="bower_components/jquery/dist/jquery.min.js"></script>
-    <script type="text/javascript" src="jquery.slideshow.js"></script>
+    <script type="text/javascript" src="../bower_components/jquery/dist/jquery.min.js"></script>
+    <script type="text/javascript" src="../jquery.slideshow.js"></script>
     <script type="text/javascript">
         var slideshow;
 
@@ -44,11 +44,13 @@
             margin-left: auto;
             margin-right: auto;
             margin-top: 20px;
-            height: 400px;
+            height: auto;
 
             border-radius: 5px;
             border: 1px solid black;
             background: white;
+            
+            display: flex;
         }
 
         .button_area {
@@ -71,11 +73,6 @@
 
         .button_area button#rb {
             float: right;
-        }
-
-        .page:after {
-            display: block;
-            height: 32px;
         }
     </style>
 </head>
